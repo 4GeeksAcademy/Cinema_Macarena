@@ -1,4 +1,5 @@
-console.log("Hello from src/main.ts");
+console.log("JS funcionando");
+import "./style.css";
 
 function createCinema(rows: number, seatsPerRow: number): number[][] {
   const cinema: number[][] = [];
@@ -77,7 +78,6 @@ function reserveContiguousSeats(cinema: number[][], seatsNeeded: number): void {
       if (consecutive === seatsNeeded) {
         const startSeat = j - seatsNeeded + 1;
 
-        // 👇 Reservar automáticamente
         for (let k = startSeat; k <= j; k++) {
           cinema[i][k] = 1;
         }
@@ -93,20 +93,58 @@ function reserveContiguousSeats(cinema: number[][], seatsNeeded: number): void {
   console.log("No hay suficientes asientos juntos disponibles");
 }
 
+// 🆕 INTERFAZ (NO rompe nada)
+function renderCinema(cinema: number[][]): void {
+  const grid = document.querySelector<HTMLDivElement>("#cinema-grid");
+  const availableCount = document.querySelector<HTMLSpanElement>("#available-count");
+
+  if (!grid || !availableCount) return;
+
+  grid.innerHTML = "";
+
+  for (let i = 0; i < cinema.length; i++) {
+    for (let j = 0; j < cinema[i].length; j++) {
+      const button = document.createElement("button");
+
+      button.textContent = `${j + 1}`;
+      button.className =
+        "rounded-xl px-3 py-3 text-sm font-semibold transition focus:outline-none";
+
+      if (cinema[i][j] === 0) {
+        button.className += " bg-emerald-500 text-white hover:bg-emerald-600";
+      } else {
+        button.className += " bg-rose-600 text-white";
+        button.disabled = true;
+      }
+
+      button.addEventListener("click", () => {
+        reserveSeat(cinema, i, j);
+        renderCinema(cinema);
+      });
+
+      grid.appendChild(button);
+    }
+  }
+
+  availableCount.textContent = String(countAvailableSeats(cinema));
+}
+
 // 🚀 EJECUCIÓN
 
+// Consola (para evaluación)
 displayCinema(cinema);
 
-// Reservas previas
 reserveSeat(cinema, 0, 0);
 reserveSeat(cinema, 0, 1);
 reserveSeat(cinema, 2, 5);
 
 displayCinema(cinema);
 
-//  PRO: reservar juntos automáticamente
 reserveContiguousSeats(cinema, 3);
 
 displayCinema(cinema);
 
 console.log("Asientos disponibles:", countAvailableSeats(cinema));
+
+// 👇 INTERFAZ
+renderCinema(cinema);
